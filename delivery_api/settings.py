@@ -32,9 +32,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-
-# Assurez-vous que le nom de domaine est inclus dans ALLOWED_HOSTS
 ALLOWED_HOSTS.append('delivery-app-api-srb5.onrender.com')
+
+# Assurez-vous que DEBUG est désactivé en production
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 DATABASES = {
     'default': {
@@ -47,10 +48,6 @@ DATABASES = {
     }
 }
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -162,3 +159,7 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://delivery-app-api-srb5.onrender.com"
+]
