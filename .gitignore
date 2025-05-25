@@ -1,0 +1,46 @@
+# Environnements virtuels
+.venv/
+venv/
+env/
+ENV/
+
+# Fichiers Python compilés
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Base de données SQLite
+db.sqlite3
+
+# Fichiers de logs
+*.log
+
+# Répertoires de cache et metadata
+*.egg-info/
+.eggs/
+.cache/
+.mypy_cache/
+.pytest_cache/
+
+# Dossiers générés par Django collectstatic
+/staticfiles/
+static/
+
+# Fichiers media (uploads)
+media/
+
+# Fichiers d'environnement
+.env
+*.env
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# PyCharm / JetBrains
+.idea/
+
+.env
