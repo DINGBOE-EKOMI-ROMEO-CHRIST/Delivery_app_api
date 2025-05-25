@@ -59,11 +59,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users',
+    'users.apps.UsersConfig',  # Utilisez la configuration de l'application
     'entreprises',
     'rest_framework',
     'rest_framework_simplejwt',
 ]
+
 
 AUTH_USER_MODEL = 'users.Utilisateur'
 
