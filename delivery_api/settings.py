@@ -36,11 +36,11 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'NAME': os.getenv('Database'),
+        'USER': os.getenv('Username'),
+        'PASSWORD': os.getenv('Password'),
+        'HOST': os.getenv('Internal_Database_URL'),
+        'PORT': os.getenv('Port'),
     }
 }
 
