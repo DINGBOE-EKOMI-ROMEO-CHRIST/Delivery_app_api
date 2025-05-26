@@ -101,12 +101,6 @@ WSGI_APPLICATION = 'delivery_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-print(f"SECRET_KEY: {SECRET_KEY}")
-print(f"DEBUG: {DEBUG}")
-print(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
-print(f"DB_NAME: {os.getenv('DB_NAME')}")
-print(f"DB_USER: {os.getenv('DB_USER')}")
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
