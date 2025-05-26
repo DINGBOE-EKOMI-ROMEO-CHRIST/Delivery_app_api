@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',  # Utilisez la configuration de l'application
     'entreprises',
+    'otp',
     'rest_framework',
     'rest_framework_simplejwt',
 ]
@@ -158,3 +159,25 @@ SIMPLE_JWT = {
 CSRF_TRUSTED_ORIGINS = [
     "https://delivery-app-api-srb5.onrender.com"
 ]
+
+# settings.py
+import os
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
+
+# Configuration de l'email
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+print(f"EMAIL_BACKEND: {EMAIL_BACKEND}")
+print(f"EMAIL_HOST: {EMAIL_HOST}")
+print(f"EMAIL_PORT: {EMAIL_PORT}")
+print(f"EMAIL_USE_TLS: {EMAIL_USE_TLS}")
+print(f"EMAIL_HOST_USER: {EMAIL_HOST_USER}")
+print(f"EMAIL_HOST_PASSWORD: {EMAIL_HOST_PASSWORD}")
