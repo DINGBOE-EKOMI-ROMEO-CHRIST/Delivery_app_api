@@ -69,10 +69,12 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',  # Utilisez la configuration de l'application
     'entreprises',
     'otp',
+    'colis',
     'livreurs',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
+    'channels',
 ]
 
 
