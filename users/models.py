@@ -1,4 +1,3 @@
-# utilisateurs/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
@@ -16,14 +15,9 @@ class Utilisateur(AbstractUser):
     # Champs de base
     email = models.EmailField(unique=True)
     telephone = models.CharField(max_length=20, unique=True)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    latitude = models.DecimalField(max_digits=10, decimal_places=8, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
-    secret_code = models.CharField(max_length=10, null=True, blank=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client')
     points_fidelite = models.IntegerField(default=0)
-    entreprise = models.ForeignKey('entreprises.Entreprise', on_delete=models.SET_NULL, null=True, blank=True)
-
-    # Champ pour la date d'inscription
+    site_id = models.IntegerField(null=True, blank=True)
     date_inscription = models.DateTimeField(default=timezone.now)
 
     # Utiliser l'email comme identifiant unique pour l'authentification
