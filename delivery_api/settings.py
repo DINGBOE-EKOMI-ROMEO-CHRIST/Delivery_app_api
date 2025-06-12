@@ -56,8 +56,12 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
+#Configuration de Momo
+MOMO_API_USER = os.getenv('MOMO_API_USER')
+MOMO_API_KEY = os.getenv('MOMO_API_KEY')
+MOMO_SUBSCRIPTION_KEY = os.getenv('MOMO_SUBSCRIPTION_KEY')
+MOMO_TARGET_ENVIRONMENT = os.getenv('MOMO_TARGET_ENVIRONMENT')
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -69,11 +73,13 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',  # Utilisez la configuration de l'application
     'entreprises',
     'otp',
-    'colis',
+    'demande',
     'livreurs',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
+    'price',
+    'delivery',
     #'channels',
 ]
 
@@ -180,3 +186,8 @@ print(f"EMAIL_PORT: {EMAIL_PORT}")
 print(f"EMAIL_USE_TLS: {EMAIL_USE_TLS}")
 print(f"EMAIL_HOST_USER: {EMAIL_HOST_USER}")
 print(f"EMAIL_HOST_PASSWORD: {EMAIL_HOST_PASSWORD}")"""
+
+MEDIA_URL = '/media/'
+
+# Chemin absolu vers le répertoire où les médias seront stockés
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
