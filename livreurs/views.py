@@ -1,30 +1,56 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Livreur
 from .serializers import LivreurSerializer, LivreurListSerializer, LivreurDetailSerializer
 from users.models import Utilisateur
+from livreurs.serializers import LivreurSerializer
+from users.serializers import UtilisateurSerializer
+from otp.utils import generate_otp, send_otp_email
+from otp.models import OTP
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_livreur_profile(request):
-    if hasattr(request.user, 'livreur_profile'):
-        return Response(
-            {'error': 'Un profil de livreur existe déjà pour cet utilisateur.'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+@permission_classes([AllowAny])
+def create_user_and_livreur_profile(request):
+    # Créer l'utilisateur
+    user_serializer = UtilisateurSerializer(data=request.data)
 
-    request.user.role = 'livreur'
-    request.user.save()
+    if not user_serializer.is_valid():
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    serializer = LivreurSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(utilisateur=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # Sauvegarder l'utilisateur avec is_active=False
+    user = user_serializer.save(is_active=False)
+    user.role = 'livreur'
+    user.save()
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Créer le profil de livreur
+    livreur_data = request.data.copy()
+    livreur_data['utilisateur'] = user.id
 
+    livreur_serializer = LivreurSerializer(data=livreur_data)
+
+    if not livreur_serializer.is_valid():
+        user.delete()  # Supprimer l'utilisateur si la création du profil échoue
+        return Response(livreur_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    livreur_serializer.save(utilisateur=user)
+
+    # Générer et envoyer l'OTP
+    otp = generate_otp()
+    send_otp_email(user.email, otp)
+    OTP.objects.create(user=user, code=otp)
+
+    return Response(
+        {
+            "message": "Compte créé, veuillez entrer l'OTP envoyé par email.",
+            "user_id": user.id,
+            "user": user_serializer.data,
+            "livreur": livreur_serializer.data
+        },
+        status=status.HTTP_201_CREATED
+    )
+    
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_livreur_profile(request):

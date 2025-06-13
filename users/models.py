@@ -1,6 +1,14 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
+from django.core.validators import RegexValidator
+
+def validate_custom_email(value):
+    email_validator = RegexValidator(
+        regex=r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+        message='Enter a valid email address.'
+    )
+    email_validator(value)
 
 class Utilisateur(AbstractUser):
     ROLE_CHOICES = [
@@ -13,7 +21,10 @@ class Utilisateur(AbstractUser):
     username = None
 
     # Champs de base
-    email = models.EmailField(unique=True)
+    email = models.EmailField(
+        unique=True,
+        validators=[validate_custom_email]  # Ajouter le validateur personnalisé ici
+    )
     telephone = models.CharField(max_length=20, unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client')
     points_fidelite = models.IntegerField(default=0)
