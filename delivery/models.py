@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-
+from demande.models import Demande
 class Livraison(models.Model):
     STATUT_CHOICES = [
         ('en attente', 'En attente'),
@@ -10,7 +10,7 @@ class Livraison(models.Model):
     ]
 
     id = models.AutoField(primary_key=True)
-    demande = models.ForeignKey('demande.Demande', on_delete=models.CASCADE, related_name='livraisons_delivery')
+    demande = models.OneToOneField(Demande, on_delete=models.CASCADE, related_name='livraison_delivery')
     livreur = models.ForeignKey('livreurs.Livreur', on_delete=models.CASCADE,null=True)
     date_prise_en_charge = models.DateTimeField(auto_now_add=True)
     longitude_depart = models.DecimalField(max_digits=10, decimal_places=8)

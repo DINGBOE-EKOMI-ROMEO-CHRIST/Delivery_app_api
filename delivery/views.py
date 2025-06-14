@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Livraison
 from .serializers import LivraisonSerializer
+from demande.models import Demande
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -55,4 +56,57 @@ def delete_livraison(request, livraison_id):
 def list_livraisons(request):
     livraisons = Livraison.objects.all()
     serializer = LivraisonSerializer(livraisons, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def livraisons_en_attente(request):
+    # Filtrer les livraisons dont le statut est "en attente"
+    livraisons = Livraison.objects.filter(statut='en attente')
+
+    # Sérialiser les données
+    serializer = LivraisonSerializer(livraisons, many=True)
+
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def assigner_livraison(request, livraison_id):
+    try:
+        livraison = Livraison.objects.get(id=livraison_id, statut='en attente', livreur__isnull=True)
+    except Livraison.DoesNotExist:
+        return Response({'error': 'Livraison non trouvée ou déjà assignée.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Vérifier si le livreur est déjà assigné à une livraison en attente
+    if Livraison.objects.filter(livreur=request.user.livreur_profile, statut='en attente').exists():
+        return Response({'error': 'Vous êtes déjà assigné à une livraison en attente.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Assigner le livreur à la livraison
+    livraison.livreur = request.user.livreur_profile
+    livraison.statut = 'en cours'
+    livraison.save()
+
+    serializer = LivraisonSerializer(livraison)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def assigner_livraison(request, livraison_id):
+    try:
+        livraison = Livraison.objects.get(id=livraison_id, statut='en attente', livreur__isnull=True)
+    except Livraison.DoesNotExist:
+        return Response({'error': 'Livraison non trouvée ou déjà assignée.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if Livraison.objects.filter(livreur=request.user.livreur_profile, statut='en attente').exists():
+        return Response({'error': 'Vous êtes déjà assigné à une livraison en attente.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    livraison.livreur = request.user.livreur_profile
+    livraison.statut = 'en cours'
+    livraison.save()
+
+    demande = livraison.demande
+    demande.statut_demande = 'pris en charge'
+    demande.save()
+
+    serializer = LivraisonSerializer(livraison)
     return Response(serializer.data)

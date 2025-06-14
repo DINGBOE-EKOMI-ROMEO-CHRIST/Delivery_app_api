@@ -10,6 +10,7 @@ from users.serializers import UtilisateurSerializer
 from otp.utils import generate_otp, send_otp_email
 from otp.models import OTP
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_user_and_livreur_profile(request):
@@ -24,10 +25,12 @@ def create_user_and_livreur_profile(request):
     user.role = 'livreur'
     user.save()
 
-    # Créer le profil de livreur
+    # Préparer les données pour le profil de livreur
     livreur_data = request.data.copy()
     livreur_data['utilisateur'] = user.id
+    livreur_data['statut_livreur'] = 'en révision'  # Définir le statut à "en révision"
 
+    # Créer le profil de livreur
     livreur_serializer = LivreurSerializer(data=livreur_data)
 
     if not livreur_serializer.is_valid():
@@ -50,7 +53,6 @@ def create_user_and_livreur_profile(request):
         },
         status=status.HTTP_201_CREATED
     )
-    
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_livreur_profile(request):

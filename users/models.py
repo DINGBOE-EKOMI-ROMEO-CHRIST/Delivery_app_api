@@ -1,14 +1,23 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.core.validators import RegexValidator
 
+# Validateur personnalisé pour l'email
 def validate_custom_email(value):
     email_validator = RegexValidator(
         regex=r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-        message='Enter a valid email address.'
+        message='Entrez une adresse email valide.'
     )
     email_validator(value)
+
+# Validateur personnalisé pour le numéro de téléphone
+def validate_phone_number(value):
+    phone_validator = RegexValidator(
+        regex=r'^01[0-9]{8}$',
+        message='Le numéro de téléphone doit commencer par 01 et contenir exactement 10 chiffres.'
+    )
+    phone_validator(value)
 
 class Utilisateur(AbstractUser):
     ROLE_CHOICES = [
@@ -23,10 +32,21 @@ class Utilisateur(AbstractUser):
     # Champs de base
     email = models.EmailField(
         unique=True,
-        validators=[validate_custom_email]  # Ajouter le validateur personnalisé ici
+        validators=[validate_custom_email]
     )
-    telephone = models.CharField(max_length=20, unique=True)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client')
+
+    telephone = models.CharField(
+        max_length=10,  # 10 chiffres au total
+        unique=True,
+        validators=[validate_phone_number]
+    )
+
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='client'
+    )
+
     points_fidelite = models.IntegerField(default=0)
     site_id = models.IntegerField(null=True, blank=True)
     date_inscription = models.DateTimeField(default=timezone.now)
