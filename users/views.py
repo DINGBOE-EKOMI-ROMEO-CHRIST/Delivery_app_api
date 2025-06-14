@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from .models import Utilisateur
+from django.http import HttpResponse
 from otp.models import OTP
 from livreurs.models import Livreur
 from .serializers import UtilisateurSerializer, EmailAuthTokenSerializer, LocationUpdateSerializer
@@ -129,3 +130,8 @@ def get_location(request):
         }
 
     return Response(data)
+
+
+
+def salut(request):
+    return HttpResponse("Salut !")
