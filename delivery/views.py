@@ -5,6 +5,7 @@ from rest_framework import status
 from .models import Livraison
 from .serializers import LivraisonSerializer
 from demande.models import Demande
+from livreurs.models import Livreur 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -89,21 +90,29 @@ def assigner_livraison(request, livraison_id):
     serializer = LivraisonSerializer(livraison)
     return Response(serializer.data)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def assigner_livraison(request, livraison_id):
+    # Récupérer l'ID du livreur connecté
+    livreur_id = request.user.livreur_profile.id
+
     try:
+        # Récupérer la livraison disponible
         livraison = Livraison.objects.get(id=livraison_id, statut='en attente', livreur__isnull=True)
     except Livraison.DoesNotExist:
         return Response({'error': 'Livraison non trouvée ou déjà assignée.'}, status=status.HTTP_404_NOT_FOUND)
 
-    if Livraison.objects.filter(livreur=request.user.livreur_profile, statut='en attente').exists():
+    # Vérifier si le livreur est déjà assigné à une livraison en attente
+    if Livraison.objects.filter(livreur__id=livreur_id, statut='en attente').exists():
         return Response({'error': 'Vous êtes déjà assigné à une livraison en attente.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    livraison.livreur = request.user.livreur_profile
+    # Assigner le livreur à la livraison
+    livraison.livreur_id = livreur_id
     livraison.statut = 'en cours'
     livraison.save()
 
+    # Mettre à jour le statut de la demande associée
     demande = livraison.demande
     demande.statut_demande = 'pris en charge'
     demande.save()

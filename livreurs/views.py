@@ -9,6 +9,8 @@ from livreurs.serializers import LivreurSerializer
 from users.serializers import UtilisateurSerializer
 from otp.utils import generate_otp, send_otp_email
 from otp.models import OTP
+from delivery.models import Livraison
+from delivery.serializers import LivraisonSerializer
 
 
 @api_view(['POST'])
@@ -115,3 +117,28 @@ def delete_livreur_profile(request):
         {'message': 'Le profil de livreur a été supprimé avec succès.'},
         status=status.HTTP_204_NO_CONTENT
     )
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def livraison_actuelle(request):
+    try:
+        # Récupère le profil de livreur de l'utilisateur connecté
+        livreur = request.user.livreur_profile
+    except Livreur.DoesNotExist:
+        return Response(
+            {'error': 'Aucun profil de livreur trouvé pour cet utilisateur.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Récupère la livraison actuelle du livreur
+    try:
+        livraison = Livraison.objects.get(livreur=livreur, statut='en cours')
+    except Livraison.DoesNotExist:
+        return Response(
+            {'message': 'Aucune livraison actuelle trouvée pour ce livreur.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = LivraisonSerializer(livraison)
+    return Response(serializer.data)

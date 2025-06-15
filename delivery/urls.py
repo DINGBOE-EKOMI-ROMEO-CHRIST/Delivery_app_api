@@ -8,6 +8,6 @@ urlpatterns = [
     path('livraisons/delete/<int:livraison_id>/', delete_livraison, name='delete_livraison'),
     path('livraisons/', list_livraisons, name='list_livraisons'),
     path('livraisons/assignable/', livraisons_en_attente, name='livraisons_en_attente'),  # Ajoutez cette ligne
-    path('livraisons/assigner-livreur/', assigner_livraison, name='assigner_livraison'),
-]
+    path('livraisons/<int:livraison_id>/assigner/', assigner_livraison, name='assigner_livraison')
+,]
 
