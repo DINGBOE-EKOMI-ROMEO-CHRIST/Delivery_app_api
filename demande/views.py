@@ -11,18 +11,6 @@ from .serializers import DemandeListSerializer
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_colis(request):
-    # Vérifier si l'utilisateur a une demande en cours qui n'est pas livrée
-    last_undelivered_demande = Demande.objects.filter(
-        utilisateur=request.user,
-        statut_demande__in=['en attente', 'pris en charge', 'en transit']
-    ).order_by('-date_creation').first()
-
-    if last_undelivered_demande:
-        return Response(
-            {'error': 'Vous avez déjà une demande en cours qui n\'est pas encore livrée.'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
     # Étape 1: Créer la demande
     demande_data = {
         'utilisateur': request.user.id,
