@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'price',
     'delivery',
     'corsheaders',
+    'reclamation',
     #'channels',
 ]
 
@@ -118,10 +119,11 @@ ROOT_URLCONF = 'delivery_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Assurez-vous que ce chemin est correct
+        'APP_DIRS': True,  # Cela permet à Django de rechercher les templates dans les répertoires des applications
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',

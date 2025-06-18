@@ -12,6 +12,15 @@ from .serializers import UtilisateurSerializer, EmailAuthTokenSerializer, Locati
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from otp.utils import generate_otp, send_otp_email
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login
+from reclamation.models import Reclamation,Retour
+from django.contrib import messages
+import logging
+
+logger = logging.getLogger(__name__)
 
 class UtilisateurListCreate(generics.ListCreateAPIView):
     queryset = Utilisateur.objects.all()
@@ -20,7 +29,17 @@ class UtilisateurListCreate(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save(is_active=False)  # Désactive le compte jusqu'à vérification OTP
+
+        # Récupérez le rôle de l'utilisateur à partir des données de la requête
+        role = serializer.validated_data.get('role', '')
+
+        # Créez l'utilisateur avec is_active=False par défaut
+        user = serializer.save(is_active=False)
+
+        # Si le rôle est admin, définissez is_staff à True
+        if role == 'admin':
+            user.is_staff = True
+            user.save()
 
         # Génère et envoie l'OTP
         otp = generate_otp()
@@ -135,3 +154,86 @@ def get_location(request):
 
 def salut(request):
     return HttpResponse("Salut !")
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_user_role_and_redirect(request):
+    user = request.user
+    if user.role == 'admin':
+        return redirect('admin_page')
+    elif user.role == 'livreur':
+        return redirect('livreur_page')
+    elif user.role == 'client':
+        return redirect('client_page')
+    else:
+        return Response({"message": "Accès non autorisé."}, status=403)
+
+
+
+
+def custom_login(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            logger.info(f"User authenticated: {user.email}")
+            if user.role == 'admin':
+                login(request, user)
+                logger.info("Admin logged in, redirecting to admin page.")
+                return redirect('admin_page')
+            else:
+                error_message = "Désolé, cette page de connexion est réservée aux administrateurs."
+                logger.warning("Non-admin user attempted to log in.")
+                messages.error(request, error_message)
+        else:
+            error_message = "Désolé, les informations d'identification que vous avez fournies ne sont pas valides."
+            logger.warning("Failed login attempt.")
+            messages.error(request, error_message)
+
+    return render(request, 'login.html')
+
+
+@login_required
+def admin_page(request):
+    if request.user.role != 'admin':
+        return render(request, 'login.html', {'error': 'Accès non autorisé. Seuls les administrateurs peuvent accéder à cette page.'})
+
+    utilisateurs = Utilisateur.objects.filter(role='client')
+    livreurs = Livreur.objects.all()
+    reclamations = Reclamation.objects.select_related('demande', 'demande__utilisateur').all()
+    # retours = Retour.objects.select_related('demande', 'demande__utilisateur').all()  # Commenté pour le moment
+    return render(request, 'admin.html', {
+        'utilisateurs': utilisateurs,
+        'livreurs': livreurs,
+        'reclamations': reclamations,
+        # 'retours': retours,  # Commenté pour le moment
+    })
+
+@login_required
+def toggle_utilisateur(request, utilisateur_id):
+    utilisateur = get_object_or_404(Utilisateur, id=utilisateur_id)
+    utilisateur.is_active = not utilisateur.is_active
+    utilisateur.save()
+    return redirect('admin_page')
+
+@login_required
+def toggle_livreur(request, livreur_id):
+    if request.method == 'POST':
+        livreur = get_object_or_404(Livreur, id=livreur_id)
+        new_status = request.POST.get('statut_livreur')
+        if new_status in ['actif', 'bloqué', 'en révision']:
+            livreur.statut_livreur = new_status
+            livreur.save()
+    return redirect('admin_page')
+
+@login_required
+def update_reclamation_status(request, reclamation_id):
+    if request.method == 'POST':
+        reclamation = get_object_or_404(Reclamation, id=reclamation_id)
+        new_status = request.POST.get('statut')
+        if new_status in ['en attente', 'résolu', 'refusé']:
+            reclamation.statut = new_status
+            reclamation.save()
+    return redirect('admin_page')

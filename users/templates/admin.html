@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Tableau de bord Professionnel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Palette de couleurs Raffinée */
+            --primary: #4f46e5; /* Un bleu plus profond et moderne */
+            --primary-dark: #3730a3;
+            --primary-light: #eef2ff; /* Fond doux pour les éléments primaires */
+            --secondary-bg: #f8fafc; /* Arrière-plan très subtil */
+            --card-bg: #ffffff;
+            --text-color: #1f2937; /* Texte principal très foncé */
+            --text-secondary: #4b5563; /* Texte secondaire */
+            --border-color: #e5e7eb; /* Bordures douces */
+
+            /* Couleurs de feedback claires et distinctes */
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --info: #3b82f6;
+            --info-light: #eff6ff;
+
+            /* Ombres plus nuancées */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+            /* Rayon de bordure universel */
+            --border-radius: 0.625rem; /* 10px, légèrement plus doux */
+
+            /* Transitions fluides */
+            --transition-fast: all 0.15s ease-out;
+            --transition-normal: all 0.25s ease-in-out;
+        }
+
+        /* Base Styles */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            line-height: 1.5;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: var(--card-bg);
+            padding: 30px 0;
+            box-shadow: var(--shadow-lg); /* Ombre plus prononcée pour la sidebar */
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            position: sticky; /* Rendre la sidebar sticky */
+            top: 0;
+            height: 100vh;
+        }
+
+        .sidebar h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 28px;
+            font-weight: 800; /* Plus gras */
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-light);
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 8px; /* Espacement entre les boutons de nav */
+        }
+
+        .sidebar .tab-btn {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 16px 30px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            border-left: 5px solid transparent;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0; /* Coins arrondis à droite */
+        }
+
+        .sidebar .tab-btn:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border-left-color: var(--primary);
+        }
+
+        .sidebar .tab-btn.active {
+            background-color: var(--primary);
+            color: var(--card-bg);
+            border-left-color: var(--info);
+            box-shadow: var(--shadow-sm);
+            transform: translateX(5px); /* Léger décalage pour l'onglet actif */
+        }
+
+        .sidebar .tab-btn i {
+            font-size: 20px;
+            transition: color var(--transition-fast);
+        }
+
+        .sidebar .tab-btn.active i {
+            color: var(--card-bg); /* S'assure que l'icône est blanche quand l'onglet est actif */
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            padding: 20px 30px;
+            font-size: 26px;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Container for sections */
+        .content-container {
+            flex-grow: 1;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 30px;
+            overflow: hidden;
+            border: 1px solid var(--border-color); /* Bordure douce */
+        }
+
+        .section {
+            display: none;
+            opacity: 0;
+            transform: translateY(15px); /* Moins de mouvement */
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h2 {
+            color: var(--primary-dark);
+            font-size: 26px; /* Légèrement plus petit pour la section */
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--primary-light); /* Bordure plus fine */
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2 i {
+            font-size: 28px;
+            color: var(--primary);
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 25px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        th, td {
+            text-align: left;
+            padding: 16px 20px; /* Padding légèrement ajusté */
+            border-bottom: 1px solid #f1f5f9; /* Bordure de ligne plus claire */
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: var(--card-bg);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px; /* Texte d'en-tête légèrement plus petit */
+            letter-spacing: 0.05em; /* Espacement des lettres */
+        }
+
+        th:first-child { border-top-left-radius: var(--border-radius); }
+        th:last-child { border-top-right-radius: var(--border-radius); }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: var(--primary-light); /* Hover plus distinct */
+            transition: background-color var(--transition-fast);
+        }
+
+        /* Form Elements & Buttons */
+        form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button, select {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 15px;
+            font-weight: 600; /* Texte plus gras pour les boutons */
+            cursor: pointer;
+            transition: var(--transition-normal);
+            white-space: nowrap;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: var(--card-bg);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centrer le contenu du bouton */
+            gap: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .button-danger { background-color: var(--danger); }
+        .button-danger:hover { background-color: #dc2626; }
+
+        .button-success { background-color: var(--success); }
+        .button-success:hover { background-color: #047857; }
+
+        select {
+            background-color: #f8fafc; /* Fond très clair */
+            border: 1px solid #d1d5db; /* Bordure légèrement plus foncée */
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%205%22%3E%3Cpath%20fill%3D%22%234b5563%22%20d%3D%22M2%200L0%202h4zm0%205L0%203h4z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 0.6em auto;
+            min-width: 130px; /* Assurer une taille minimale */
+            color: var(--text-color);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Notifications (Toast) */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg); /* Ombre plus grande pour le toast */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .notification i {
+            font-size: 20px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px; /* Padding ajusté */
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: capitalize;
+            border: 1px solid transparent; /* Bordure subtile */
+        }
+
+        /* Couleurs spécifiques des badges */
+        .status-active { background-color: var(--success-light); color: var(--success); border-color: color-mix(in srgb, var(--success), transparent 70%); }
+        .status-inactive { background-color: var(--danger-light); color: var(--danger); border-color: color-mix(in srgb, var(--danger), transparent 70%); }
+        .status-bloqué { background-color: var(--danger-light); color: var(--danger); border-color: color-mix(in srgb, var(--danger), transparent 70%); }
+        .status-en-révision { background-color: var(--warning-light); color: var(--warning); border-color: color-mix(in srgb, var(--warning), transparent 70%); }
+        .status-en-attente { background-color: var(--info-light); color: var(--info); border-color: color-mix(in srgb, var(--info), transparent 70%); }
+        .status-résolu { background-color: var(--success-light); color: var(--success); border-color: color-mix(in srgb, var(--success), transparent 70%); }
+        .status-refusé { background-color: var(--danger-light); color: var(--danger); border-color: color-mix(in srgb, var(--danger), transparent 70%); }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px;
+            }
+            .sidebar h2 {
+                font-size: 26px;
+            }
+            .sidebar .tab-btn {
+                padding: 14px 20px;
+                font-size: 15px;
+            }
+            .main-content {
+                padding: 30px;
+            }
+            header {
+                font-size: 24px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            h2 i {
+                font-size: 26px;
+            }
+            th, td {
+                padding: 14px 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 15px 0;
+                box-shadow: var(--shadow-md);
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                position: static; /* Supprimer sticky sur mobile */
+            }
+            .sidebar h2 {
+                display: none;
+            }
+            .sidebar nav {
+                flex-direction: row;
+                justify-content: space-around;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .sidebar .tab-btn {
+                flex: 1;
+                text-align: center;
+                border-left: none;
+                border-bottom: 4px solid transparent;
+                padding: 10px 8px;
+                font-size: 13px;
+                flex-direction: column;
+                gap: 5px;
+                border-radius: var(--border-radius); /* Arrondir tous les coins des boutons de nav */
+            }
+            .sidebar .tab-btn.active {
+                border-bottom-color: var(--info);
+                border-left-color: transparent;
+                transform: none; /* Pas de décalage sur mobile */
+            }
+            .main-content {
+                padding: 20px;
+                gap: 20px;
+            }
+            header {
+                font-size: 20px;
+                padding: 15px 20px;
+            }
+            h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            h2 i {
+                font-size: 22px;
+            }
+            table, th, td {
+                font-size: 12px;
+                padding: 10px;
+            }
+            button, select {
+                padding: 7px 10px;
+                font-size: 12px;
+            }
+            form {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            select {
+                width: 100%;
+                min-width: unset;
+            }
+            .status-badge {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Dashboard Admin</h2>
+        <nav>
+            <button class="tab-btn active" data-target="clients">
+                <i class="fas fa-users"></i> Clients
+            </button>
+            <button class="tab-btn" data-target="livreurs">
+                <i class="fas fa-motorcycle"></i> Livreurs
+            </button>
+            <button class="tab-btn" data-target="reclamations">
+                <i class="fas fa-exclamation-triangle"></i> Réclamations
+            </button>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header>Tableau de bord Administrateur</header>
+
+        <div class="content-container">
+            <div id="notification" class="notification">
+                <i class="fas fa-check-circle"></i> <span id="notification-message">Opération réussie !</span>
+            </div>
+
+            <div id="clients" class="section active">
+                <h2><i class="fas fa-users-gear"></i> Gestion des Clients</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for utilisateur in utilisateurs %}
+                        <tr>
+                            <td>{{ utilisateur.email }}</td>
+                            <td>
+                                <span class="status-badge status-{{ utilisateur.is_active|yesno:"active,inactive" }}">
+                                    {% if utilisateur.is_active %}
+                                        <i class="fas fa-circle-check"></i> Actif
+                                    {% else %}
+                                        <i class="fas fa-circle-xmark"></i> Inactif
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <form action="{% url 'toggle_utilisateur' utilisateur.id %}" method="post" onsubmit="return confirmAction('{{ utilisateur.is_active|yesno:"désactiver,réactiver" }} cet utilisateur ?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="{% if utilisateur.is_active %}button-danger{% else %}button-success{% endif %}" onclick="showNotification('Statut client mis à jour !')">
+                                        {% if utilisateur.is_active %}
+                                            <i class="fas fa-user-slash"></i> Désactiver
+                                        {% else %}
+                                            <i class="fas fa-user-check"></i> Réactiver
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="livreurs" class="section">
+                <h2><i class="fas fa-truck-fast"></i> Gestion des Livreurs</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for livreur in livreurs %}
+                        <tr>
+                            <td>{{ livreur.utilisateur.email }}</td>
+                            <td>
+                                <span class="status-badge status-{{ livreur.statut_livreur|slugify }}">
+                                    {% if livreur.statut_livreur == 'actif' %}<i class="fas fa-circle-check"></i> Actif
+                                    {% elif livreur.statut_livreur == 'bloqué' %}<i class="fas fa-circle-xmark"></i> Bloqué
+                                    {% else %}<i class="fas fa-hourglass-half"></i> En révision
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <form action="{% url 'toggle_livreur' livreur.id %}" method="post" onsubmit="showNotification('Statut livreur mis à jour !')">
+                                    {% csrf_token %}
+                                    <select name="statut_livreur">
+                                        <option value="actif" {% if livreur.statut_livreur == 'actif' %}selected{% endif %}>Actif</option>
+                                        <option value="bloqué" {% if livreur.statut_livreur == 'bloqué' %}selected{% endif %}>Bloqué</option>
+                                        <option value="en révision" {% if livreur.statut_livreur == 'en révision' %}selected{% endif %}>En révision</option>
+                                    </select>
+                                    <button type="submit">
+                                        <i class="fas fa-sync-alt"></i> Mettre à jour
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="reclamations" class="section">
+                <h2><i class="fas fa-headset"></i> Gestion des Réclamations</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Demande ID</th>
+                            <th>Description</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reclamation in reclamations %}
+                        <tr>
+                            <td>{{ reclamation.demande.utilisateur.email }}</td>
+                            <td>{{ reclamation.demande.id }}</td>
+                            <td>{{ reclamation.description }}</td>
+                            <td>
+                                <span class="status-badge status-{{ reclamation.statut|slugify }}">
+                                    {% if reclamation.statut == 'en attente' %}<i class="fas fa-hourglass-half"></i> En attente
+                                    {% elif reclamation.statut == 'résolu' %}<i class="fas fa-check-circle"></i> Résolu
+                                    {% else %}<i class="fas fa-times-circle"></i> Refusé
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <form action="{% url 'update_reclamation_status' reclamation.id %}" method="post" onsubmit="showNotification('Statut réclamation mis à jour !')">
+                                    {% csrf_token %}
+                                    <select name="statut">
+                                        <option value="en attente" {% if reclamation.statut == 'en attente' %}selected{% endif %}>En attente</option>
+                                        <option value="résolu" {% if reclamation.statut == 'résolu' %}selected{% endif %}>Résolu</option>
+                                        <option value="refusé" {% if reclamation.statut == 'refusé' %}selected{% endif %}>Refusé</option>
+                                    </select>
+                                    <button type="submit">
+                                        <i class="fas fa-sync-alt"></i> Mettre à jour
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const sections = document.querySelectorAll('.section');
+            const notification = document.getElementById("notification");
+            const notificationMessage = document.getElementById("notification-message");
+
+            // Fonction pour activer une section
+            const activateSection = (targetId) => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                sections.forEach(section => section.classList.remove('active'));
+
+                const targetButton = document.querySelector(`.tab-btn[data-target="${targetId}"]`);
+                const targetSection = document.getElementById(targetId);
+
+                if (targetButton) targetButton.classList.add('active');
+                if (targetSection) targetSection.classList.add('active');
+            };
+
+            // Écouteurs d'événements pour les boutons de navigation
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    activateSection(button.dataset.target);
+                });
+            });
+
+            // Afficher la première section par défaut au chargement
+            activateSection('clients');
+
+            // Fonction pour afficher la notification (toast)
+            window.showNotification = function(message = 'Opération réussie !') {
+                notificationMessage.textContent = message;
+                notification.classList.add("show");
+                setTimeout(() => {
+                    notification.classList.remove("show");
+                }, 3000);
+            };
+
+            // Fonction de confirmation d'action
+            window.confirmAction = function(message) {
+                return confirm("Êtes-vous sûr de vouloir " + message);
+            };
+        });
+    </script>
+</body>
+</html>
